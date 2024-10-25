@@ -65,6 +65,9 @@ from great_expectations.expectations.model_field_descriptions import (
     MOSTLY_DESCRIPTION,
     WINDOWS_DESCRIPTION,
 )
+from great_expectations.expectations.model_field_types import (
+    ConditionParser,
+)
 from great_expectations.expectations.registry import (
     get_metric_kwargs,
     register_expectation,
@@ -1527,14 +1530,10 @@ class BatchExpectation(Expectation, ABC):
     """  # noqa: E501
 
     batch_id: Union[str, None] = None
-    row_condition: Union[str, None] = None
-    condition_parser: Union[str, None] = None
 
     domain_keys: ClassVar[Tuple[str, ...]] = (
         "batch_id",
         "table",
-        "row_condition",
-        "condition_parser",
     )
     metric_dependencies: ClassVar[Tuple[str, ...]] = ()
     domain_type: ClassVar[MetricDomainTypes] = MetricDomainTypes.TABLE
@@ -1688,11 +1687,7 @@ class QueryExpectation(BatchExpectation, ABC):
         - https://docs.greatexpectations.io/docs/guides/expectations/creating_custom_expectations/how_to_create_custom_query_expectations
     """  # noqa: E501
 
-    domain_keys: ClassVar[Tuple] = (
-        "batch_id",
-        "row_condition",
-        "condition_parser",
-    )
+    domain_keys: ClassVar[Tuple] = ("batch_id",)
 
     @override
     def validate_configuration(
@@ -1705,16 +1700,13 @@ class QueryExpectation(BatchExpectation, ABC):
 
         Raises:
               InvalidExpectationConfigurationError: If no `query` is specified
-              UserWarning: If query is not parameterized, and/or row_condition is passed.
+              UserWarning: If query is not parameterized
         """
         super().validate_configuration(configuration=configuration)
         if not configuration:
             configuration = self.configuration
 
         query: Optional[Any] = configuration.kwargs.get("query") or self._get_default_value("query")
-        row_condition: Optional[Any] = configuration.kwargs.get(
-            "row_condition"
-        ) or self._get_default_value("row_condition")
 
         try:
             assert (
@@ -1742,13 +1734,6 @@ class QueryExpectation(BatchExpectation, ABC):
             )
         except (TypeError, AssertionError) as e:
             warnings.warn(str(e), UserWarning)
-        try:
-            assert row_condition is None, (
-                "`row_condition` is an experimental feature. "
-                "Combining this functionality with QueryExpectations may result in unexpected behavior."  # noqa: E501
-            )
-        except AssertionError as e:
-            warnings.warn(str(e), UserWarning)
 
 
 class ColumnAggregateExpectation(BatchExpectation, ABC):
@@ -1773,6 +1758,8 @@ class ColumnAggregateExpectation(BatchExpectation, ABC):
     """  # noqa: E501
 
     column: StrictStr = Field(min_length=1, description=COLUMN_DESCRIPTION)
+    row_condition: Union[str, None] = None
+    condition_parser: Union[ConditionParser, None] = None
 
     domain_keys: ClassVar[Tuple[str, ...]] = (
         "batch_id",
@@ -1826,6 +1813,8 @@ class ColumnMapExpectation(BatchExpectation, ABC):
     mostly: confloat(ge=0, le=1, multiple_of=0.01) = Field(
         default=1.0, description=MOSTLY_DESCRIPTION
     )
+    row_condition: Union[str, None] = None
+    condition_parser: Union[ConditionParser, None] = None
 
     catch_exceptions: bool = True
 
@@ -2094,6 +2083,8 @@ class ColumnPairMapExpectation(BatchExpectation, ABC):
     mostly: confloat(ge=0, le=1, multiple_of=0.01) = Field(
         default=1.0, description=MOSTLY_DESCRIPTION
     )
+    row_condition: Union[str, None] = None
+    condition_parser: Union[ConditionParser, None] = None
 
     catch_exceptions: bool = True
 
@@ -2351,6 +2342,8 @@ class MulticolumnMapExpectation(BatchExpectation, ABC):
         default=1.0, description=MOSTLY_DESCRIPTION
     )
 
+    row_condition: Union[str, None] = None
+    condition_parser: Union[ConditionParser, None] = None
     ignore_row_if: Literal["all_values_are_missing", "any_value_is_missing", "never"] = (
         "all_values_are_missing"
     )
