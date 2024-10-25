@@ -1,7 +1,7 @@
 from numbers import Number
 from typing import Any, Callable, Dict, Generator, Iterable, Union
 
-from great_expectations.compatibility.pydantic import fields
+from great_expectations.compatibility.pydantic import confloat, fields
 from great_expectations.compatibility.typing_extensions import Annotated, override
 from great_expectations.expectations.model_field_descriptions import (
     MOSTLY_DESCRIPTION,
@@ -48,7 +48,7 @@ class _Mostly(Number):
             field_schema["multipleOf"] = 0.01
 
 
-Mostly = Annotated[_Mostly, float]
+Mostly: type = confloat(ge=0.0, le=1.0, multiple_of=0.01)
 
 
 class _ValueSet(Iterable):
@@ -110,4 +110,4 @@ class _ValueSet(Iterable):
             ]
 
 
-ValueSet = Annotated[Union[list, set], _ValueSet]
+ValueSet = Annotated[_ValueSet, Union[list, set]]
