@@ -1266,6 +1266,7 @@ class SqlAlchemyExecutionEngine(ExecutionEngine):
                 execution_engine=self,
                 selectable=selectable,
                 create_temp_table=create_temp_table,
+                temp_table_schema_name=temp_table_schema_name,
                 source_table_name=source_table_name,
                 source_schema_name=source_schema_name,
             )
