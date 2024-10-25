@@ -34,7 +34,7 @@ from typing_extensions import ParamSpec, dataclass_transform
 from great_expectations import __version__ as ge_version
 from great_expectations._docs_decorators import public_api
 from great_expectations.compatibility import pydantic
-from great_expectations.compatibility.pydantic import Field, ModelMetaclass, StrictStr
+from great_expectations.compatibility.pydantic import Field, ModelMetaclass, StrictStr, confloat
 from great_expectations.compatibility.typing_extensions import override
 from great_expectations.core.expectation_validation_result import (
     ExpectationValidationResult,
@@ -64,9 +64,6 @@ from great_expectations.expectations.model_field_descriptions import (
     COLUMN_LIST_DESCRIPTION,
     MOSTLY_DESCRIPTION,
     WINDOWS_DESCRIPTION,
-)
-from great_expectations.expectations.model_field_types import (
-    Mostly,
 )
 from great_expectations.expectations.registry import (
     get_metric_kwargs,
@@ -1826,7 +1823,9 @@ class ColumnMapExpectation(BatchExpectation, ABC):
     """  # noqa: E501
 
     column: StrictStr = Field(min_length=1, description=COLUMN_DESCRIPTION)
-    mostly: Mostly = Field(default=1.0, description=MOSTLY_DESCRIPTION)
+    mostly: confloat(ge=0, le=1, multiple_of=0.01) = Field(
+        default=1.0, description=MOSTLY_DESCRIPTION
+    )
 
     catch_exceptions: bool = True
 
@@ -2092,7 +2091,9 @@ class ColumnPairMapExpectation(BatchExpectation, ABC):
 
     column_A: StrictStr = Field(min_length=1, description=COLUMN_A_DESCRIPTION)
     column_B: StrictStr = Field(min_length=1, description=COLUMN_B_DESCRIPTION)
-    mostly: Mostly = pydantic.Field(default=1.0, description=MOSTLY_DESCRIPTION)
+    mostly: confloat(ge=0, le=1, multiple_of=0.01) = Field(
+        default=1.0, description=MOSTLY_DESCRIPTION
+    )
 
     catch_exceptions: bool = True
 
@@ -2346,7 +2347,9 @@ class MulticolumnMapExpectation(BatchExpectation, ABC):
     """  # noqa: E501
 
     column_list: List[StrictStr] = pydantic.Field(description=COLUMN_LIST_DESCRIPTION)
-    mostly: Mostly = pydantic.Field(default=1.0, description=MOSTLY_DESCRIPTION)
+    mostly: confloat(ge=0, le=1, multiple_of=0.01) = Field(
+        default=1.0, description=MOSTLY_DESCRIPTION
+    )
 
     ignore_row_if: Literal["all_values_are_missing", "any_value_is_missing", "never"] = (
         "all_values_are_missing"
