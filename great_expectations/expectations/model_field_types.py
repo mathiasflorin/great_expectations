@@ -49,7 +49,7 @@ class _Mostly(Number):
             field_schema["multipleOf"] = 0.01
 
 
-Mostly = Annotated[_Mostly, float]
+Mostly = Annotated[float, _Mostly]
 
 
 class _ValueSet(Iterable):
@@ -111,7 +111,7 @@ class _ValueSet(Iterable):
             ]
 
 
-ValueSet = Annotated[_ValueSet, Union[list, set]]
+ValueSet = Annotated[Union[list, set], _ValueSet]
 
 
 class ConditionParser(str, Enum):
